@@ -8,8 +8,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+enum class AppMode {
+    MEDIA, MESSAGING, NAVIGATION
+}
+
 data class AppUiState(
-    val actions: List<AppAction> = emptyList()
+    val actions: List<AppAction> = emptyList(),
+    val currentMode: AppMode = AppMode.NAVIGATION
 )
 
 class SharedViewModel : ViewModel() {
@@ -21,12 +26,23 @@ class SharedViewModel : ViewModel() {
     }
 
     private fun loadActions() {
-        val actions = listOf(
-            AppAction("1", "Start Navigation", "Navigate to your destination"),
-            AppAction("2", "Play Music", "Stream your favorite playlist"),
-            AppAction("3", "Check Status", "View your current connection status")
-        )
-        _uiState.value = AppUiState(actions = actions)
+        val actions = mutableListOf<AppAction>()
+        
+        // Navigation Actions
+        actions.add(AppAction("nav_1", "Start Navigation", "Navigate to your destination"))
+        actions.add(AppAction("nav_2", "Home", "Go to home"))
+        
+        // Messaging Actions
+        actions.add(AppAction("msg_1", "Send Message", "Quick reply to latest text"))
+        
+        // Media Actions
+        actions.add(AppAction("media_1", "Play Music", "Play from playlist"))
+
+        _uiState.value = AppUiState(actions = actions, currentMode = AppMode.NAVIGATION)
+    }
+
+    fun setMode(mode: AppMode) {
+        _uiState.value = _uiState.value.copy(currentMode = mode)
     }
 
     fun performAction(actionId: String) {
